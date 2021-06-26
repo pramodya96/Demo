@@ -7,6 +7,7 @@ import {
 import { NavigationContainer } from '@react-navigation/native';
 import Home from './src/Home';
 import ScreenTwo from './src/ScreenTwo';
+import ScreenOne from './src/ScreenOne';
 import {View, Text, StyleSheet, TouchableOpacity, Button, StatusBar, Image, SafeAreaView} from 'react-native';
 
 const Drawer = createDrawerNavigator();
@@ -24,7 +25,7 @@ const CustomDrawerContent = (props) => {
   return (
     <SafeAreaView forceInset={{ top: 'always', horizontal: 'never' }}>
        {/* <DrawerContentScrollView {...props}></DrawerContentScrollView> */}
-       <View style={{ borderBottomWidth: 1, backgroundColor:'#0378c5' }}>
+       <View style={{ borderBottomWidth: 1, backgroundColor:'#3ca03c' }}>
           <Image style={styles.imagedesign} source={require('./src/images/useravatar.png')} />
           <Text style={styles.headertext}>Pramodya Amarajeewa</Text>
           <Text style={styles.subheadertext}>pramodamarajeewa@gmail.com</Text>
@@ -37,9 +38,10 @@ const CustomDrawerContent = (props) => {
 
 function MyDrawer() {
   return (
-    <Drawer.Navigator initialRouteName={'S2'} drawerContent={props => <CustomDrawerContent {...props} />}>
+    <Drawer.Navigator initialRouteName={'S1'} drawerContent={props => <CustomDrawerContent {...props} />}>
       <Drawer.Screen name="S2" component={ScreenTwo}/>
       <Drawer.Screen name="Home" component={Home} />
+      <Drawer.Screen name="S1" component={ScreenOne} />
     </Drawer.Navigator>
   );
 }
