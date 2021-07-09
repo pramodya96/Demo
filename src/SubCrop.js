@@ -2,16 +2,9 @@
  * @author Pramodya
  */
  import React, {Component} from 'react';
- import {View, Text, StyleSheet, TouchableOpacity, Button, StatusBar, Image, FlatList, Dimensions} from 'react-native';
+ import {View, Text, StyleSheet, TouchableOpacity, Button, StatusBar, Image, FlatList, Dimensions, TextInput} from 'react-native';
  import axios from 'axios';
 import { Card } from 'react-native-paper';
- 
- const data = [
-   {id:0, name:'Test 1'},
-   {id:1, name:'Test 2'},
-   {id:3, name:'Test 3'},
-   {id:4, name:'Test 4'},
- ]
 
  const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -28,38 +21,32 @@ import { Card } from 'react-native-paper';
 
   componentDidMount(){
     console.log(this.props.route.params.name);
-    // let word = this.props.route.params.name;
-    // let formatter = word.slice(1, word.length - 1);
-    // console.log(formatter);
 
-    // const majorCategory = { majorCategory: this.props.route.params.name };
-    const majorCategory = { majorCategory: 'Fruits' };
+    const mainCrop = { mainCrop: this.props.route.params.name };
 
-    axios.post(`https://agrobizz.net/api/agroTrading/mainCrop/get`, majorCategory)
+    axios.post(`https://agrobizz.net/api/subCrop/getByMainCrop`, mainCrop)
     .then(res => {
       this.setState({
         dataSource: res.data.data
         // console.log(res.data)
        });
-       console.log(this.state.dataSource);
+    //    console.log(this.state.dataSource['Avocado'].crop_category_id);
 
-      //  let data = [];
+       let data = [];
 
-      //  for (var i = 0; i < this.state.dataSource.length; i++){
-      //    Object.keys(this.state.dataSource[i]).reduce((result, key) => {
-      //          data.push(
-      //               {
-      //                  id: i,
-      //                  name: result.concat(this.state.dataSource[i][key].English)
-      //              }
-      //          );
-      //    // console.log(data[i].name);
-      //            },[]);
-      //    }
-      //    this.setState({
-      //      arrayData:data
-      //    })
-
+       for (var i = 0; i < this.state.dataSource.length; i++){
+         Object.keys(this.state.dataSource[i]).reduce((result, key) => {
+               data.push(
+                    {
+                       id: i,
+                       name: result.concat(this.state.dataSource[i][key].English)
+                   }
+               );
+                 },[]);
+         }
+         this.setState({
+           arrayData:data
+         })
     });
   }
 
@@ -68,7 +55,6 @@ import { Card } from 'react-native-paper';
      return (
        <View style={styles.container}>
           <StatusBar backgroundColor = "#3ca03c" barStyle="light-content"/>
-    
           <View style={styles.headerdesign}>
               <TouchableOpacity onPress={() => this.props.navigation.openDrawer()}>
                 <Image
@@ -85,17 +71,19 @@ import { Card } from 'react-native-paper';
             </TouchableOpacity>
           </View>
 
+          {/* {this.rendergetData()} */}
+
         <FlatList
         style={{alignSelf:'center'}}
            showsVerticalScrollIndicator={false}
-           data={this.state.dataSource}
+           data={this.state.arrayData}
            renderItem={({ item, index }) => {
                return (
-                <TouchableOpacity onPress ={() => this.props.navigation.navigate('SubCrop', {name: item.sub_crop})}>
+                <TouchableOpacity>
                  <Card style={{margin:10}}>
                   <View >
                     <Image style={styles.imagedesign} resizeMode={'contain'} source={require('../src/images/download.jpg')}/>
-                    <Text style= {styles.textdescription}>{item.main_crop}</Text>
+                    <Text style= {styles.textdescription}>{item.name}</Text>
                   </View>
                 </Card>
                 </TouchableOpacity>
@@ -112,13 +100,12 @@ import { Card } from 'react-native-paper';
    container: {
      flex: 1,
     //  alignItems: 'center',
-     justifyContent: 'center',
+    //  justifyContent: 'center',
    },
    boader: {
      borderWidth: 0.7,
      borderColor: "black",
      marginTop: 10,
-    //  borderBottomRightRadius:20,
      borderRadius:5,
    },
    textdescription: {
@@ -153,7 +140,6 @@ import { Card } from 'react-native-paper';
     borderTopRightRadius:2
   },
   headericon:{
-    // flexDirection: "row",
     justifyContent: "flex-end",
     width:40, 
     height:40,

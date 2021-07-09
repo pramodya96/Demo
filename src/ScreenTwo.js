@@ -4,56 +4,169 @@
 import React, {Component} from 'react';
 import { TouchableOpacity } from 'react-native';
 import { Dimensions } from 'react-native';
-import {View, Text, StyleSheet, Image, StatusBar, Button} from 'react-native';
+import {View, Text, StyleSheet, Image, StatusBar, Button, FlatList} from 'react-native';
 import { Card } from 'react-native-paper';
 import Header from './Header';
+import axios from 'axios';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
+
 export default class ScreenTwo extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      dataSource:[],
+      arrayData:[]
+     };
+   }
+
+  componentDidMount(){
+   this.getData();
+  }
+
+  getData(){
+    axios.post(`https://agrobizz.net/api/agroTrading/majorCrop/get`)
+    .then(res => {
+      this.setState({
+        dataSource: res.data.data
+       });
+      //  console.log(this.state.dataSource[0].Coconut.English);
+
+
+      // let data = [];
+
+      // for (var i = 0; i < this.state.dataSource.length; i++){
+      //   Object.keys(this.state.dataSource[i]).reduce((result, key) => {
+      //       // console.log(result.concat(this.state.dataSource[i][key].English));
+      //       // let word = result.concat(this.state.dataSource[i][key].English);
+      //       // let formatter = word.slice(1, word.length - 1);
+
+      //       // console.log(formatter);
+      //       // console.log(result);
+      //         data.push(
+      //              {
+      //                 id: i,
+      //                 name: result.concat(this.state.dataSource[i][key].English)
+      //             }
+      //         );
+      //   // console.log(data[i].name);
+
+      //           },[]);
+      //   }
+      //   this.setState({
+      //     arrayData:data
+      //   })
+        // console.log(this.state.arrayData);
+   
+    });
+  }
+
+
   render() {
+    // for (var i = 0; i < this.state.dataSource.length; i++){
+    //   Object.keys(this.state.dataSource[i]).reduce((result, key) => {
+          // console.log(result.concat(this.state.dataSource[i][key].English));
+          // return (
+          //   <View >
+          //   {/* <Text style={{color:'red'}}>{result.concat(this.state.dataSource[i][key].English)}</Text> */}
+          //   </View>
+          // );
+        // }, []);
+      // }
+
     return (
+
       <View style={styles.container}>
         <StatusBar backgroundColor = "#3ca03c" barStyle="light-content"/>
-        {/* <Header navigation={() => this.props.navigation.openDrawer()} /> */}
+    
+        <View style={styles.headerdesign}>
+          <TouchableOpacity onPress={() => this.props.navigation.openDrawer()}>
+            <Image
+              style={{width:50, height:50}}
+              source ={require('../src/images/menuicon2.png')}
+              />
+          </TouchableOpacity>
+        <Text style ={styles.title}>Header</Text>
+        <TouchableOpacity>
+          <Image
+            style={styles.headericon}
+            source ={require('../src/images/ic_notification.png')}
+           />
+        </TouchableOpacity>
+     </View>
 
-        <View style={{padding: 10, margin: 10}}>
-            <TouchableOpacity onPress={() => this.props.navigation.openDrawer()}>
-              <Image
-                 style={{width:50, height:50}}
-                 source ={require('../src/images/menuicon2.png')}
-                 />
-            </TouchableOpacity>
-            
-            <Text style ={styles.title}>Header</Text>
-
-            <TouchableOpacity>
-              <Image
-                 style={styles.headericon}
-                 source ={require('../src/images/ic_notification.png')}
-                 />
-            </TouchableOpacity>
-        </View>
-
-        {/* <Button title="Open drawer" onPress={() => this.props.navigation.openDrawer()} /> */}
         <Card style={styles.carddesign}>
-          <Text>SELECT MAIN CATEGORY</Text>
-        </Card>
+           <Text>SELECT MAIN CATEGORY</Text>
+         </Card>
 
-        <TouchableOpacity onPress ={() => this.props.navigation.navigate('Home')}>
-          <View style={styles.borderdesign} >
-            <Image style={styles.imagedesign} source={require('../src/images/fruit.jpg')}  />
-            <Text style={styles.textviewdesign2} >Fruits</Text>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress ={() => this.props.navigation.navigate('Home')}>
-        <View style={styles.borderdesign} >
-          <Image style={styles.imagedesign} source={require('../src/images/vegetable.jpg')}/>
-          <Text style={styles.textviewdesign2} >Vegetables</Text>
+      <View style ={{padding : 10}}>
+        <FlatList
+          style={{alignSelf:'center'}}
+            showsVerticalScrollIndicator={false}
+            data={this.state.dataSource}
+            renderItem={({ item, index }) => {
+               return (
+                 <TouchableOpacity onPress ={() => this.props.navigation.navigate('Home', {name: item.major_crop})}>
+                  <Card style = {{marginTop:5}} >
+                    <View >
+                      {/* <Image style={styles.imagedesign} resizeMode={'contain'} source={require('https://agrobizz.lk/'+{item.main_image})}/> */}
+                      <Image source={{uri: 'https://agrobizz.net/'+item.major_image}} style={styles.imagedesign}/>
+                      <Text style = {styles.textdescription}>{item.major_crop}</Text>
+                    </View>
+                  </Card>
+                  </TouchableOpacity>
+               );
+            }}
+            keyExtractor={item => `${item.id}`}
+         />
         </View>
-        </TouchableOpacity>
       </View>
+
+      // <View>
+      // </View>
+      // <View style={styles.container}>
+      //   <StatusBar backgroundColor = "#3ca03c" barStyle="light-content"/>
+      //   {/* <Header navigation={() => this.props.navigation.openDrawer()} /> */}
+
+      //   <View style={styles.headerdesign}>
+      //       <TouchableOpacity onPress={() => this.props.navigation.openDrawer()}>
+      //         <Image
+      //            style={{width:50, height:50}}
+      //            source ={require('../src/images/menuicon2.png')}
+      //            />
+      //       </TouchableOpacity>
+            
+      //       <Text style ={styles.title}>Header</Text>
+
+      //       <TouchableOpacity>
+      //         <Image
+      //            style={styles.headericon}
+      //            source ={require('../src/images/ic_notification.png')}
+      //            />
+      //       </TouchableOpacity>
+      //   </View>
+
+      //   {/* <Button title="Open drawer" onPress={() => this.props.navigation.openDrawer()} /> */}
+      //   <Card style={styles.carddesign}>
+      //     <Text>SELECT MAIN CATEGORY</Text>
+      //   </Card>
+
+      //   <TouchableOpacity onPress ={() => this.props.navigation.navigate('Home')}>
+      //     <View style={styles.borderdesign} >
+      //       <Image style={styles.imagedesign} source={require('../src/images/fruit.jpg')}  />
+      //       <Text style={styles.textviewdesign2} >Fruits</Text>
+      //     </View>
+      //   </TouchableOpacity>
+
+      //   <TouchableOpacity onPress ={() => this.props.navigation.navigate('Home')}>
+      //   <View style={styles.borderdesign} >
+      //     <Image style={styles.imagedesign} source={require('../src/images/vegetable.jpg')}/>
+      //     <Text style={styles.textviewdesign2} >Vegetables</Text>
+      //   </View>
+      //   </TouchableOpacity>
+ 
     );
   }
 }
@@ -75,14 +188,12 @@ const styles = StyleSheet.create({
     margin:10,
   },
   imagedesign:{
-    width: SCREEN_WIDTH/10*9,
-    marginLeft:10,
+    borderTopLeftRadius:2, 
+    borderTopRightRadius:2,
+    resizeMode: 'cover', 
+    width: SCREEN_WIDTH, 
+    height: 150,
     marginRight:10,
-    paddingRight:10,
-    height:200,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop:10,
   },
   borderdesign:{
     borderWidth: 1,
@@ -127,8 +238,6 @@ const styles = StyleSheet.create({
     color:'white'
   },
   carddesign:{
-    // borderWidth: 1,
-    // borderColor: "black",
     borderRadius: 0,
     marginLeft:10,
     marginRight:10,
@@ -142,5 +251,18 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     width:40, 
     height:40,
-  }
+  },
+   boader: {
+    borderWidth: 0,
+    // borderColor: "black",
+    marginTop: 10,
+   //  borderBottomRightRadius:20,
+    borderRadius:5,
+  },
+  textdescription: {
+    paddingTop:8,
+    paddingBottom:5,
+    paddingLeft:25,
+    fontSize: 15
+  },
 });

@@ -8,6 +8,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import Home from './src/Home';
 import ScreenTwo from './src/ScreenTwo';
 import ScreenOne from './src/ScreenOne';
+import SubCrop from './src/SubCrop';
+import Product from './src/Product';
 import {View, Text, StyleSheet, TouchableOpacity, Button, StatusBar, Image, SafeAreaView} from 'react-native';
 
 const Drawer = createDrawerNavigator();
@@ -38,10 +40,12 @@ const CustomDrawerContent = (props) => {
 
 function MyDrawer() {
   return (
-    <Drawer.Navigator initialRouteName={'S1'} drawerContent={props => <CustomDrawerContent {...props} />}>
+    <Drawer.Navigator initialRouteName={'S2'} drawerContent={props => <CustomDrawerContent {...props} />}>
       <Drawer.Screen name="S2" component={ScreenTwo}/>
       <Drawer.Screen name="Home" component={Home} />
       <Drawer.Screen name="S1" component={ScreenOne} />
+      <Drawer.Screen name="SubCrop" component={SubCrop} />
+      <Drawer.Screen name="Product" component={Product} />
     </Drawer.Navigator>
   );
 }

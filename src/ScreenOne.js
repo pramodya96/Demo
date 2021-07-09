@@ -37,8 +37,9 @@ export default class componentName extends Component {
 
                             if(responseJson.message == 'login_successful'){
                                 this.props.navigation.navigate('S2');
+                            }else{
+                                Alert.alert("Login Failed", responseJson.message);
                             }
-                            
                         } else {
                             Alert.alert("Login Failed", "Username and Password is Incorrect !");
                         }
