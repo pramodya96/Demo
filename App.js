@@ -40,7 +40,7 @@ const CustomDrawerContent = (props) => {
 
 function MyDrawer() {
   return (
-    <Drawer.Navigator initialRouteName={'S2'} drawerContent={props => <CustomDrawerContent {...props} />}>
+    <Drawer.Navigator initialRouteName={'S1'} drawerContent={props => <CustomDrawerContent {...props} />}>
       <Drawer.Screen name="S2" component={ScreenTwo}/>
       <Drawer.Screen name="Home" component={Home} />
       <Drawer.Screen name="S1" component={ScreenOne} />
