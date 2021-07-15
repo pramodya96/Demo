@@ -28,7 +28,6 @@ import { Card } from 'react-native-paper';
     .then(res => {
       this.setState({
         dataSource: res.data.data
-        // console.log(res.data)
        });
     //    console.log(this.state.dataSource['Avocado'].crop_category_id);
 
@@ -39,9 +38,11 @@ import { Card } from 'react-native-paper';
                data.push(
                     {
                        id: i,
-                       name: result.concat(this.state.dataSource[i][key].English)
+                       name: result.concat(this.state.dataSource[i][key].English),
+                       crop: this.state.dataSource[i][key].Image
                    }
                );
+               
                  },[]);
          }
          this.setState({
@@ -73,16 +74,17 @@ import { Card } from 'react-native-paper';
 
           {/* {this.rendergetData()} */}
 
+        <View style ={{padding : 10}}>
         <FlatList
         style={{alignSelf:'center'}}
            showsVerticalScrollIndicator={false}
            data={this.state.arrayData}
            renderItem={({ item, index }) => {
                return (
-                <TouchableOpacity>
-                 <Card style={{margin:10}}>
+                <TouchableOpacity onPress ={() => this.props.navigation.navigate('Product', {name: item.name})}>
+                 <Card style={{marginTop:10}}>
                   <View >
-                    <Image style={styles.imagedesign} resizeMode={'contain'} source={require('../src/images/download.jpg')}/>
+                    <Image source={{uri: item.crop}} style={styles.imagedesign}/>
                     <Text style= {styles.textdescription}>{item.name}</Text>
                   </View>
                 </Card>
@@ -91,6 +93,7 @@ import { Card } from 'react-native-paper';
            }}
            keyExtractor={item => `${item.id}`}
          />
+         </View>
        </View>
      );
    }
@@ -137,7 +140,11 @@ import { Card } from 'react-native-paper';
   },
   imagedesign:{
     borderTopLeftRadius:2, 
-    borderTopRightRadius:2
+    borderTopRightRadius:2,
+    resizeMode: 'cover', 
+    width: SCREEN_WIDTH, 
+    height: 150,
+    marginRight:10,
   },
   headericon:{
     justifyContent: "flex-end",

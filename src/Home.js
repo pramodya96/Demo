@@ -6,14 +6,16 @@
  import axios from 'axios';
 import { Card } from 'react-native-paper';
  
- const data = [
-   {id:0, name:'Test 1'},
-   {id:1, name:'Test 2'},
-   {id:3, name:'Test 3'},
-   {id:4, name:'Test 4'},
- ]
+//  const data = [
+//    {id:0, name:'Test 1'},
+//    {id:1, name:'Test 2'},
+//    {id:3, name:'Test 3'},
+//    {id:4, name:'Test 4'},
+//  ]
 
  const SCREEN_WIDTH = Dimensions.get('window').width;
+
+ let data = [];
 
 
  export default class Home extends Component {
@@ -28,14 +30,12 @@ import { Card } from 'react-native-paper';
 
   componentDidMount(){
     console.log(this.props.route.params.name);
-    // let word = this.props.route.params.name;
-    // let formatter = word.slice(1, word.length - 1);
-    // console.log(formatter);
 
-    // const majorCategory = { majorCategory: this.props.route.params.name };
-    const majorCategory = { majorCategory: 'Fruits' };
+    const majorCategory = { majorCrop: this.props.route.params.name };
+    // const majorCategory = { majorCategory: 'Fruits' };
+    console.log(majorCategory)
 
-    axios.post(`https://agrobizz.net/api/agroTrading/mainCrop/get`, majorCategory)
+    axios.post(`https://agrobizz.net/api/mainCrop/getByMajorCrop`, majorCategory)
     .then(res => {
       this.setState({
         dataSource: res.data.data
@@ -45,20 +45,21 @@ import { Card } from 'react-native-paper';
 
       //  let data = [];
 
-      //  for (var i = 0; i < this.state.dataSource.length; i++){
-      //    Object.keys(this.state.dataSource[i]).reduce((result, key) => {
-      //          data.push(
-      //               {
-      //                  id: i,
-      //                  name: result.concat(this.state.dataSource[i][key].English)
-      //              }
-      //          );
-      //    // console.log(data[i].name);
-      //            },[]);
-      //    }
-      //    this.setState({
-      //      arrayData:data
-      //    })
+       for (var i = 0; i < this.state.dataSource.length; i++){
+         Object.keys(this.state.dataSource[i]).reduce((result, key) => {
+               data.push(
+                    {
+                       id: i,
+                       name: result.concat(this.state.dataSource[i][key].English),
+                       img: this.state.dataSource[i][key].Image
+                   }
+               );
+         // console.log(data[i].name);
+                 },[]);
+         }
+         this.setState({
+           arrayData:data
+         })
 
     });
   }
@@ -85,17 +86,18 @@ import { Card } from 'react-native-paper';
             </TouchableOpacity>
           </View>
 
+        <View style ={{padding : 10}}>
         <FlatList
         style={{alignSelf:'center'}}
            showsVerticalScrollIndicator={false}
-           data={this.state.dataSource}
+           data={data}
            renderItem={({ item, index }) => {
                return (
-                <TouchableOpacity onPress ={() => this.props.navigation.navigate('SubCrop', {name: item.sub_crop})}>
-                 <Card style={{margin:10}}>
+                <TouchableOpacity onPress ={() => this.props.navigation.navigate('SubCrop', {name: item.name})}>
+                 <Card style={{marginTop:10}}>
                   <View >
-                    <Image style={styles.imagedesign} resizeMode={'contain'} source={require('../src/images/download.jpg')}/>
-                    <Text style= {styles.textdescription}>{item.main_crop}</Text>
+                  <Image source={{uri: item.img}} style={styles.imagedesign}/>
+                    <Text style= {styles.textdescription}>{item.name}</Text>
                   </View>
                 </Card>
                 </TouchableOpacity>
@@ -103,6 +105,7 @@ import { Card } from 'react-native-paper';
            }}
            keyExtractor={item => `${item.id}`}
          />
+         </View>
        </View>
      );
    }
@@ -112,7 +115,7 @@ import { Card } from 'react-native-paper';
    container: {
      flex: 1,
     //  alignItems: 'center',
-     justifyContent: 'center',
+    //  justifyContent: 'center',
    },
    boader: {
      borderWidth: 0.7,
@@ -148,15 +151,19 @@ import { Card } from 'react-native-paper';
     alignItems: 'center',
     color:'white'
   },
-  imagedesign:{
-    borderTopLeftRadius:2, 
-    borderTopRightRadius:2
-  },
   headericon:{
     // flexDirection: "row",
     justifyContent: "flex-end",
     width:40, 
     height:40,
-  }
+  },
+  imagedesign:{
+    borderTopLeftRadius:2, 
+    borderTopRightRadius:2,
+    resizeMode: 'cover', 
+    width: SCREEN_WIDTH, 
+    height: 150,
+    marginRight:10,
+  },
  });
  

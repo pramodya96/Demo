@@ -12,10 +12,11 @@ import {
     Alert,
     TextInput,
     Dimensions,
-    ActivityIndicator
+    ActivityIndicator,
+    ToastAndroid
 } from "react-native";
 import { Card } from 'react-native-paper';
-import { Icon, SearchBar } from 'react-native-elements'
+import { Icon, SearchBar, Header} from 'react-native-elements'
 import { TouchableOpacity } from "react-native";
 // import ModalBox from 'react-native-modal';
 import {Dropdown, MultiSelect} from 'react-native-element-dropdown';
@@ -29,19 +30,49 @@ const data = [
 
 export default class componentName extends Component {
 
-    state = {
-        modalVisible: false
-      };
+    componentDidMount(){
+        const subCrop = { subCrop: this.props.route.params.name };
+        axios.post(`https://agrobizz.net/api/agroTrading/farmerDetailsBySubCrop/get`, subCrop)
+        .then(res => {
+          this.setState({
+            dataSource: res.data.data,
+            harvestinginfo: res.data.farmerHarvestingDetails,
+            location:res.data.farmerHarvestingDetails[0].location_name,
+            DSD:res.data.farmerHarvestingDetails[0].farmer.dsd,
+            GND:res.data.farmerHarvestingDetails[0].farmer.gnd,
+            image:res.data.farmerHarvestingDetails[0].image
+           });
+           console.log(this.state.harvestinginfo[0].location_name);
+        });
+      }
+
+    constructor(props) {
+        super(props);
+        this.state = {
+          isLoading: false,
+          modalVisible: false,
+          dataSource:[],
+          harvestinginfo:[],
+          location:'',
+          DSD:'',
+          GND:'',
+          image:'',
+        };
+      }
+
+    // state = {
+    //     modalVisible: false,
+    //   };
 
     setModalVisible = (visible) => {
         this.setState({ modalVisible: visible });
       }
 
-    //   const [dropdown, setDropdown] = useState(null);
 
     saveData() {
         console.log(this.state.qty +" " + this.state.price+ " " +this.state.delivert_type);
         // this.setModalVisible(false);
+        this.setState({isLoading:true});
 
         const items = { 
             farmer_id: 'FRMR34_AG3',
@@ -57,7 +88,10 @@ export default class componentName extends Component {
         .then(res => {
             // console.log("message : " + JSON.stringify(res));
             console.log(res.data.message);
+            ToastAndroid.show(res.data.message, ToastAndroid.SHORT);
+            this.setState({isLoading:false});
             this.setModalVisible(false);
+            
         });
       }
     // state = {
@@ -72,9 +106,16 @@ export default class componentName extends Component {
 
         const { modalVisible } = this.state;
         // const { search } = this.state;
+      
 
         return (
             <View style={styles.container}>
+                {/* <Header
+                    placement="left"
+                    leftComponent={{ icon: 'menu', color: '#fff' }}
+                    centerComponent={{ text: 'MY TITLE', style: { color: '#fff' } }}
+                    rightComponent={{ icon: 'home', color: '#fff' }}
+                /> */}
                <View style={styles.carddesign2} >
                    <View style={styles.view}>
                         <Image style={{width:30, height:30}}  source={require('../src/images/icon.png')}/> 
@@ -83,27 +124,25 @@ export default class componentName extends Component {
                 </View>
 
                 <Card style={styles.carddesign}>
-                    <Image style={styles.image} resizeMode={'contain'} source={require('../src/images/vegetable.jpg')}/>
+                    {/* <Image style={styles.image} resizeMode={'contain'} source={require('../src/images/vegetable.jpg')}/> */}
+                    <Image source={{uri: 'https://agrobizz.net/'+this.state.dataSource.main_image}} style={styles.imagedesign}/>
                 </Card>
 
                 <Card style={styles.carddesign} >
-                   <View>
-                        <Text> CATEGORY:</Text>
-                        <Text> PRODUCT:</Text>
+                   <View style={{margin:10}}>
+                        <Text> CATEGORY: {this.state.dataSource.main_crop}</Text>
+                        <Text> PRODUCT: {this.state.dataSource.sub_crop}</Text>
                     </View>
                 </Card>
 
-                {/* <SearchBar
-                    placeholder="Type Here..."
-                    onChangeText={this.updateSearch}
-                    value={search}
-                /> */}
                 <TouchableOpacity onPress={() => this.setModalVisible(true)}>
                     <Card style={styles.carddesign} >
                         <View>
-                            <Image style={styles.image} resizeMode={'contain'} source={require('../src/images/download.jpg')}/>
-                            <Text> Location:</Text>
-                            <Text> GNS:</Text>
+                            {/* <Image style={styles.image} resizeMode={'contain'} source={require('../src/images/download.jpg')}/> */}
+                            <Image source={{uri: 'https://agrobizz.net/'+this.state.image}} style={styles.imagedesign}/>
+                            <Text style={{marginTop:10, marginStart:10}}> Location: {this.state.location}</Text>
+                            <Text style={{marginTop:10, marginStart:10}}> DSD: {this.state.DSD}</Text>
+                            <Text style={{marginTop:10, marginStart:10, marginBottom:10}}> GNS: {this.state.GND} </Text>
                         </View>
                     </Card>
                 </TouchableOpacity>
@@ -160,24 +199,28 @@ export default class componentName extends Component {
                                 this.setState({
                                     delivert_type: item.label
                                 })
-                                  
-                                }}
+                            }}
                             renderLeftIcon={() => (
                                 <Image style={styles.icon} source={require('../src/images/menuicon2.png')} />
                             )}
                             // renderItem={item => _renderItem(item)}
                             textError="Error"
                 />
-                       
                         <Pressable
                             style={[styles.button, styles.buttonClose]}
                             onPress={() => this.saveData()}
                         >
-                        <Text style={styles.textStyle}>Save</Text>
+                        <Text style={styles.textStyle}>Order now</Text>
                         </Pressable>
+                    </View>
+
+                    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                        {this.state.isLoading && <ActivityIndicator color='red' size="large"/>}
                     </View>
                 </View>
                 </Modal>
+
+                
             </View>
         );
     }
@@ -196,7 +239,7 @@ const styles = StyleSheet.create({
         marginBottom:10,
         elevation:10,
         marginTop:10,
-        padding:10,
+        // padding:10,
         flexDirection:'row',
       },
       image:{
@@ -290,4 +333,13 @@ const styles = StyleSheet.create({
         width:300,
     },
     //<----------------------popup menu styles end------------------>
+    imagedesign:{
+        borderTopLeftRadius:2, 
+        borderTopRightRadius:2,
+        resizeMode: 'cover', 
+        width: '100%', 
+        height: 150,
+        marginRight:10,
+        
+      },
 });

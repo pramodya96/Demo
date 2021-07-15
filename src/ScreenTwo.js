@@ -10,6 +10,7 @@ import Header from './Header';
 import axios from 'axios';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
+let data = [];
 
 
 export default class ScreenTwo extends Component {
@@ -27,7 +28,7 @@ export default class ScreenTwo extends Component {
   }
 
   getData(){
-    axios.post(`https://agrobizz.net/api/agroTrading/majorCrop/get`)
+    axios.post(`https://agrobizz.net/api/majorCrop/getAll`)
     .then(res => {
       this.setState({
         dataSource: res.data.data
@@ -37,27 +38,33 @@ export default class ScreenTwo extends Component {
 
       // let data = [];
 
-      // for (var i = 0; i < this.state.dataSource.length; i++){
-      //   Object.keys(this.state.dataSource[i]).reduce((result, key) => {
-      //       // console.log(result.concat(this.state.dataSource[i][key].English));
-      //       // let word = result.concat(this.state.dataSource[i][key].English);
-      //       // let formatter = word.slice(1, word.length - 1);
+      for (var i = 0; i < this.state.dataSource.length; i++){
+        Object.keys(this.state.dataSource[i]).reduce((result, key) => {
+            // console.log(result.concat(this.state.dataSource[i][key].English));
+            // let word = result.concat(this.state.dataSource[i][key].English);
+            // let formatter = word.slice(1, word.length - 1);
 
-      //       // console.log(formatter);
-      //       // console.log(result);
-      //         data.push(
-      //              {
-      //                 id: i,
-      //                 name: result.concat(this.state.dataSource[i][key].English)
-      //             }
-      //         );
-      //   // console.log(data[i].name);
+            // console.log(formatter);
+            // console.log(result);
+            let crop = this.state.dataSource[i][key].Image;
+            // let img = this.state.dataSource[i].English.Image;
 
-      //           },[]);
-      //   }
-      //   this.setState({
-      //     arrayData:data
-      //   })
+            console.log(crop);
+            
+              data.push(
+                   {
+                      id: i,
+                      name: result.concat(this.state.dataSource[i][key].English),
+                      crop: this.state.dataSource[i][key].Image
+                  }
+              );
+        // console.log(data[i].name);
+
+                },[]);
+        }
+        this.setState({
+          arrayData:data
+        })
         // console.log(this.state.arrayData);
    
     });
@@ -105,15 +112,17 @@ export default class ScreenTwo extends Component {
         <FlatList
           style={{alignSelf:'center'}}
             showsVerticalScrollIndicator={false}
-            data={this.state.dataSource}
+            data={data}
             renderItem={({ item, index }) => {
+
                return (
-                 <TouchableOpacity onPress ={() => this.props.navigation.navigate('Home', {name: item.major_crop})}>
+                 <TouchableOpacity onPress ={() => this.props.navigation.navigate('Home', {name: item.name})}>
                   <Card style = {{marginTop:5}} >
                     <View >
                       {/* <Image style={styles.imagedesign} resizeMode={'contain'} source={require('https://agrobizz.lk/'+{item.main_image})}/> */}
-                      <Image source={{uri: 'https://agrobizz.net/'+item.major_image}} style={styles.imagedesign}/>
-                      <Text style = {styles.textdescription}>{item.major_crop}</Text>
+                      {/* <Image source={{uri: 'https://agrobizz.net/'+item.major_image}} style={styles.imagedesign}/> */}
+                      <Image source={{uri: item.crop}} style={styles.imagedesign}/>
+                      <Text style = {styles.textdescription}>{item.name}</Text>
                     </View>
                   </Card>
                   </TouchableOpacity>
