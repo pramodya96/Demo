@@ -5,19 +5,19 @@ import React, { Component } from "react";
 import { 
     View,
     Text,
-    StyleSheet,TextInput,Image,Button,Dimensions,NetInfo,Alert,TouchableOpacity,Icon,ToastAndroid
+    StyleSheet,TextInput,Image,Button,Dimensions,Alert,TouchableOpacity,Icon,ToastAndroid
 } from "react-native";
-import { color } from "react-native-elements/dist/helpers";
 import Strings from '../src/essentials/Strings';
+import NetInfo from "@react-native-community/netinfo";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export default class componentName extends Component {
 
-      Login() {
-        // console.log(this.state.email);
-        // NetInfo.isConnected.fetch().then(isConnected => {
-        //     if (isConnected === true) {
+      async Login() {
+        NetInfo.fetch().then(state => {
+            if (state.isConnected === true) {
                 fetch(Strings.BaseUrl+'api/user/login?email=' + this.state.email + '&password=' + this.state.password, {
                     method: 'POST',
                     headers: {
@@ -35,29 +35,67 @@ export default class componentName extends Component {
                             console.log("Login : " + JSON.stringify(responseJson.message));
                             ToastAndroid.show(responseJson.message, ToastAndroid.SHORT);
 
-                            if(responseJson.message == 'login_successful'){
+                            const id = responseJson.user.id.toString();
+                            const useremail = responseJson.user.email;
+                            const name = responseJson.user.name;
+                            const role = responseJson.user.role;
+
+                            this.saveUserLoginInfo(id, useremail, name, role);  //save user info
+
+                            if (responseJson.message === 'login_successful'){
                                 this.props.navigation.navigate('S2');
-                            }else{
-                                Alert.alert("Login Failed", responseJson.message);
+                            } else {
+                                Alert.alert('Login Failed', responseJson.message);
                             }
                         } else {
-                            Alert.alert("Login Failed", "Username and Password is Incorrect !");
+                            Alert.alert('Login Failed', 'Username and Password is Incorrect !');
                         }
                     })
 
                     .catch((error) => {
-                        Alert.alert("Login Failed", "Username and Password is Incorrect !");
+                        Alert.alert('Login Failed', 'Username and Password is Incorrect !');
                     });
-            // } else {
-            //     //this.connectionError();
-            //     Alert.alert("Connection Failed", "Please check your Network Connection !");
-            // }
-        };
+            } else {
+                    Alert.alert('Connection Failed', 'Please check your Network Connection !');
+            }
+          });
+    }
+
+    async saveUserLoginInfo(id, mail, name, role){
+        try {
+            await AsyncStorage.setItem('mail', mail)
+            await AsyncStorage.setItem('name', name)
+            await AsyncStorage.setItem('id', id)
+            await AsyncStorage.setItem('role', role)
+        }
+        catch (e){
+            console.error(e);
+        }
+    }
+
+    //  async storage data testing//////////////////////////
+    async data(){
+        try {
+            const value = await AsyncStorage.getItem('mail')
+            const name = await AsyncStorage.getItem('name')
+            const id = await AsyncStorage.getItem('id')
+            const role = await AsyncStorage.getItem('role')
+            if(value !== null) {
+                console.log(value);
+                console.log(name);
+                console.log(id);
+                console.log(role);
+            }
+        }  catch (e){
+            console.error(e);
+        }
+    }
+    //  async storage data testing end//////////////////////////
 
     render() {
         return (
         <View style = {{alignItems:'center', margin:20}}>
-            <Image source={require('../src/images/useravatar.png')} style={{width:150, height:170, marginBottom:70,}}/>
+            <Image source={require('../src/images/agrobizz.png')} style={{width:150, height:170, marginBottom:70,}}/>
 
             <TextInput
             style={styles.input}
@@ -97,7 +135,7 @@ export default class componentName extends Component {
              </View>
             </TouchableOpacity>
 
-            <TouchableOpacity style={{marginTop:10}} >
+            <TouchableOpacity style={{marginTop:10}} onPress={this.data.bind(this)}>
              <View style={styles.btndesign}>
              <Image
                    style={{width:40, height:40,}}
@@ -116,6 +154,14 @@ export default class componentName extends Component {
                 <Text style={{color:'white'}}>HOME</Text>
              </View>
             </TouchableOpacity>
+
+            <View style={styles.bottomview}>
+                <Text style={{color:'black'}}>Powered By </Text>
+                <Image
+                   style={{width:90, height:50, resizeMode: 'contain'}}
+                   source ={require('../src/images/celata_logo.png')}
+                   />
+             </View>
 
         </View>
         );
@@ -150,5 +196,16 @@ const styles = StyleSheet.create({
         borderRadius:5,
         flexDirection: 'row',
         justifyContent: 'center',
+    },
+    bottomview: {
+        bottom: 0,
+        // paddingTop:50,
+        alignItems: 'center',
+        width:SCREEN_WIDTH*0.9,
+        paddingLeft:30,
+        paddingRight:30,
+        flexDirection: 'row',
+        justifyContent: 'center',
+       
     }
 });
