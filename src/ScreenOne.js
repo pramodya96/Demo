@@ -15,6 +15,10 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export default class componentName extends Component {
 
+    componentDidMount(){
+        this.CheckLoginInfo();
+    }
+
       async Login() {
         NetInfo.fetch().then(state => {
             if (state.isConnected === true) {
@@ -39,10 +43,11 @@ export default class componentName extends Component {
                             const useremail = responseJson.user.email;
                             const name = responseJson.user.name;
                             const role = responseJson.user.role;
+                            // const status = true;
 
-                            this.saveUserLoginInfo(id, useremail, name, role);  //save user info
 
                             if (responseJson.message === 'login_successful'){
+                                this.saveUserLoginInfo(id, useremail, name, role);  //save user info
                                 this.props.navigation.navigate('S2');
                             } else {
                                 Alert.alert('Login Failed', responseJson.message);
@@ -63,10 +68,11 @@ export default class componentName extends Component {
 
     async saveUserLoginInfo(id, mail, name, role){
         try {
-            await AsyncStorage.setItem('mail', mail)
-            await AsyncStorage.setItem('name', name)
-            await AsyncStorage.setItem('id', id)
-            await AsyncStorage.setItem('role', role)
+            await AsyncStorage.setItem('mail', mail);
+            await AsyncStorage.setItem('name', name);
+            await AsyncStorage.setItem('id', id);
+            await AsyncStorage.setItem('role', role);
+            await AsyncStorage.setItem('login_status', 'true');
         }
         catch (e){
             console.error(e);
@@ -74,17 +80,15 @@ export default class componentName extends Component {
     }
 
     //  async storage data testing//////////////////////////
-    async data(){
+    async CheckLoginInfo(){
         try {
             const value = await AsyncStorage.getItem('mail')
             const name = await AsyncStorage.getItem('name')
             const id = await AsyncStorage.getItem('id')
-            const role = await AsyncStorage.getItem('role')
-            if(value !== null) {
-                console.log(value);
-                console.log(name);
-                console.log(id);
-                console.log(role);
+            const login_status = await AsyncStorage.getItem('login_status')
+            if(login_status !== null && login_status === 'true') {
+                console.log(login_status);
+                this.props.navigation.navigate('S2');
             }
         }  catch (e){
             console.error(e);
@@ -135,7 +139,7 @@ export default class componentName extends Component {
              </View>
             </TouchableOpacity>
 
-            <TouchableOpacity style={{marginTop:10}} onPress={this.data.bind(this)}>
+            <TouchableOpacity style={{marginTop:10}} onPress ={() => this.props.navigation.navigate('Register')}>
              <View style={styles.btndesign}>
              <Image
                    style={{width:40, height:40,}}
@@ -158,7 +162,7 @@ export default class componentName extends Component {
             <View style={styles.bottomview}>
                 <Text style={{color:'black'}}>Powered By </Text>
                 <Image
-                   style={{width:90, height:50, resizeMode: 'contain'}}
+                   style={{width:90, height:30, resizeMode: 'contain'}}
                    source ={require('../src/images/celata_logo.png')}
                    />
              </View>
@@ -199,13 +203,11 @@ const styles = StyleSheet.create({
     },
     bottomview: {
         bottom: 0,
-        // paddingTop:50,
         alignItems: 'center',
         width:SCREEN_WIDTH*0.9,
         paddingLeft:30,
         paddingRight:30,
-        flexDirection: 'row',
         justifyContent: 'center',
-       
+        marginTop:40,
     }
 });
