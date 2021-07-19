@@ -10,7 +10,9 @@ import ScreenTwo from './src/ScreenTwo';
 import ScreenOne from './src/ScreenOne';
 import SubCrop from './src/SubCrop';
 import Product from './src/Product';
+import Register from './src/Register';
 import {View, Text, StyleSheet, TouchableOpacity, Button, StatusBar, Image, SafeAreaView} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Drawer = createDrawerNavigator();
 
@@ -26,17 +28,31 @@ const Drawer = createDrawerNavigator();
 const CustomDrawerContent = (props) => {
   return (
     <SafeAreaView forceInset={{ top: 'always', horizontal: 'never' }}>
-       {/* <DrawerContentScrollView {...props}></DrawerContentScrollView> */}
        <View style={{ borderBottomWidth: 1, backgroundColor:'#3ca03c' }}>
           <Image style={styles.imagedesign} source={require('./src/images/useravatar.png')} />
           <Text style={styles.headertext}>Pramodya Amarajeewa</Text>
           <Text style={styles.subheadertext}>pramodamarajeewa@gmail.com</Text>
       </View>
-     
       <DrawerItemList {...props} />
-    {/* </DrawerContentScrollView> */}
+
+      <View style={{borderBottomColor: 'black', borderBottomWidth: 1, marginBottom:20}}/>
+      <View style={styles.logoutbtn}>
+        <TouchableOpacity >
+          <Text>LOGOUT</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
 )};
+
+const logout = async () => {
+  try {
+    await AsyncStorage.setItem('login_status', 'false')
+  } catch (e) {
+    // saving error
+  }
+}
+
+
 
 function MyDrawer() {
   return (
@@ -46,6 +62,7 @@ function MyDrawer() {
       <Drawer.Screen name="S1" component={ScreenOne} />
       <Drawer.Screen name="SubCrop" component={SubCrop} />
       <Drawer.Screen name="Product" component={Product} />
+      <Drawer.Screen name="Register" component={Register} />
     </Drawer.Navigator>
   );
 }
@@ -77,4 +94,7 @@ const styles = StyleSheet.create({
     fontSize:10,
     marginBottom:10
   },
+  logoutbtn: {
+    marginLeft:15,
+  }
 });
