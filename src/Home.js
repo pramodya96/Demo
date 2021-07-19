@@ -2,9 +2,10 @@
  * @author Pramodya
  */
  import React, {Component} from 'react';
- import {View, Text, StyleSheet, TouchableOpacity, Button, StatusBar, Image, FlatList, Dimensions} from 'react-native';
+ import {View, Text, StyleSheet, TouchableOpacity, Button, StatusBar, Image, FlatList, Alert, Dimensions} from 'react-native';
  import axios from 'axios';
 import { Card } from 'react-native-paper';
+import NetInfo from "@react-native-community/netinfo";
  
 //  const data = [
 //    {id:0, name:'Test 1'},
@@ -35,32 +36,37 @@ import { Card } from 'react-native-paper';
     // const majorCategory = { majorCategory: 'Fruits' };
     console.log(majorCategory)
 
-    axios.post(`https://agrobizz.net/api/mainCrop/getByMajorCrop`, majorCategory)
-    .then(res => {
-      this.setState({
-        dataSource: res.data.data
+    NetInfo.fetch().then(state => {
+      if (state.isConnected === true) {
+      axios.post(`https://agrobizz.net/api/mainCrop/getByMajorCrop`, majorCategory)
+      .then(res => {
+        this.setState({
+          dataSource: res.data.data
         // console.log(res.data)
-       });
-       console.log(this.state.dataSource);
+         });
+         console.log(this.state.dataSource);
 
       //  let data = [];
 
-       for (var i = 0; i < this.state.dataSource.length; i++){
-         Object.keys(this.state.dataSource[i]).reduce((result, key) => {
-               data.push(
-                    {
+         for (var i = 0; i < this.state.dataSource.length; i++){
+           Object.keys(this.state.dataSource[i]).reduce((result, key) => {
+                 data.push(
+                      {
                        id: i,
                        name: result.concat(this.state.dataSource[i][key].English),
                        img: this.state.dataSource[i][key].Image
-                   }
-               );
+                     }
+                 );
          // console.log(data[i].name);
                  },[]);
-         }
-         this.setState({
-           arrayData:data
-         })
-
+           }
+           this.setState({
+             arrayData:data
+           })
+        });
+      } else {
+        Alert.alert('Connection Failed', 'Please check your Network Connection !');
+    }
     });
   }
 
@@ -77,7 +83,7 @@ import { Card } from 'react-native-paper';
                   source ={require('../src/images/menuicon2.png')}
                   />
               </TouchableOpacity>
-            <Text style ={styles.title}>Header</Text>
+            <Text style ={styles.title}>Agrobizz</Text>
             <TouchableOpacity>
               <Image
                  style={styles.headericon}
