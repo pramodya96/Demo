@@ -11,8 +11,10 @@ import ScreenOne from './src/ScreenOne';
 import SubCrop from './src/SubCrop';
 import Product from './src/Product';
 import Register from './src/Register';
+import SplshScreen from './src/SplashScreen';
 import {View, Text, StyleSheet, TouchableOpacity, Button, StatusBar, Image, SafeAreaView} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import RNRestart from 'react-native-restart';
 
 const Drawer = createDrawerNavigator();
 
@@ -34,21 +36,31 @@ const CustomDrawerContent = (props) => {
           <Text style={styles.subheadertext}>pramodamarajeewa@gmail.com</Text>
       </View>
       <DrawerItemList {...props} />
+      {/* <Button
+        onPress={() => this.props.navigation.navigate('S2')}
+        title="Home"
+      /> */}
 
       <View style={{borderBottomColor: 'black', borderBottomWidth: 1, marginBottom:20}}/>
       <View style={styles.logoutbtn}>
-        <TouchableOpacity >
+        <TouchableOpacity onPress={logout.bind(this)}>
           <Text>LOGOUT</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
 )};
 
+const navigationOptions = {
+  drawerLockMode: 'locked-open',
+}
 const logout = async () => {
   try {
-    await AsyncStorage.setItem('login_status', 'false')
+    await AsyncStorage.setItem('login_status', 'false');
+    RNRestart.Restart();
+
+    // this.props.navigation.navigate('SplashScreen');
   } catch (e) {
-    // saving error
+    console.log(e);
   }
 }
 
@@ -56,14 +68,17 @@ const logout = async () => {
 
 function MyDrawer() {
   return (
-    <Drawer.Navigator initialRouteName={'S1'} drawerContent={props => <CustomDrawerContent {...props} />}>
+    <Drawer.Navigator edgeWidth={0} initialRouteName={'SplashScreen'} drawerContent={props => <CustomDrawerContent {...props} />}>
       <Drawer.Screen name="S2" component={ScreenTwo}/>
       <Drawer.Screen name="Home" component={Home} />
       <Drawer.Screen name="S1" component={ScreenOne} />
       <Drawer.Screen name="SubCrop" component={SubCrop} />
       <Drawer.Screen name="Product" component={Product} />
       <Drawer.Screen name="Register" component={Register} />
+      <Drawer.Screen name="SplashScreen" component={SplshScreen} />
     </Drawer.Navigator>
+
+
   );
 }
 
@@ -72,6 +87,7 @@ export default function App() {
     <NavigationContainer>
       <MyDrawer />
     </NavigationContainer>
+
   );
 }
 
