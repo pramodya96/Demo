@@ -21,6 +21,7 @@ import { TouchableOpacity } from "react-native";
 // import ModalBox from 'react-native-modal';
 import {Dropdown, MultiSelect} from 'react-native-element-dropdown';
 import axios from 'axios';
+import NetInfo from "@react-native-community/netinfo";
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -32,19 +33,25 @@ export default class componentName extends Component {
 
     componentDidMount(){
         const subCrop = { subCrop: this.props.route.params.name };
-        axios.post(`https://agrobizz.net/api/agroTrading/farmerDetailsBySubCrop/get`, subCrop)
-        .then(res => {
-          this.setState({
-            dataSource: res.data.data,
-            harvestinginfo: res.data.farmerHarvestingDetails,
-            location:res.data.farmerHarvestingDetails[0].location_name,
-            DSD:res.data.farmerHarvestingDetails[0].farmer.dsd,
-            GND:res.data.farmerHarvestingDetails[0].farmer.gnd,
-            image:res.data.farmerHarvestingDetails[0].image
-           });
-           console.log(this.state.harvestinginfo[0].location_name);
+        NetInfo.fetch().then(state => {
+            if (state.isConnected === true) {
+            axios.post(`https://agrobizz.net/api/agroTrading/farmerDetailsBySubCrop/get`, subCrop)
+            .then(res => {
+            this.setState({
+                dataSource: res.data.data,
+                harvestinginfo: res.data.farmerHarvestingDetails,
+                location:res.data.farmerHarvestingDetails[0].location_name,
+                DSD:res.data.farmerHarvestingDetails[0].farmer.dsd,
+                GND:res.data.farmerHarvestingDetails[0].farmer.gnd,
+                image:res.data.farmerHarvestingDetails[0].image
+            });
+            console.log(this.state.harvestinginfo[0].location_name);
+            });
+            }else {
+                Alert.alert('Connection Failed', 'Please check your Network Connection !');
+            }
         });
-      }
+    }
 
     constructor(props) {
         super(props);

@@ -26,6 +26,8 @@ import RadioButton from 'react-native-customizable-radio-button';
 import Geolocation from '@react-native-community/geolocation';
 import RNLocation from 'react-native-location';
 import axios from 'axios';
+import NetInfo from "@react-native-community/netinfo";
+import RNAndroidLocationEnabler from 'react-native-android-location-enabler';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -58,40 +60,48 @@ export default class Register extends Component {
     // }
 
     ///geo start
-    async  requestLocationPermission(){
-        try {
-          const granted = await PermissionsAndroid.request(
-            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-            {
-                'title': 'Agrobizz',
-                'message': 'Agrobizz access to your location '
-            }
-          )
-          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-            alert('This app needs the Location permission');
-          } else {
-            alert('Location permission denied');
-          }
-        } catch (err) {
-          console.warn(err)
-        }
-      }
+    // async  requestLocationPermission(){
+    //     try {
+    //       const granted = await PermissionsAndroid.request(
+    //         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+    //         {
+    //             'title': 'Agrobizz',
+    //             'message': 'Agrobizz access to your location '
+    //         }
+    //       )
+    //       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+    //         alert('This app needs the Location permission');
+    //       } else {
+    //         alert('Location permission denied');
+    //       }
+    //     } catch (err) {
+    //       console.warn(err)
+    //     }
+    //   }
       
-       async componentDidMount() {
-         await this.requestLocationPermission()
-         Geolocation.getCurrentPosition(info => 
-            this.setState({
-                lat:info.coords.latitude
-            })
-            );
-         Geolocation.getCurrentPosition(info => 
-            // console.log(info.coords.longitude)
-            this.setState({
-                lng:info.coords.longitude
-            })
-         );
-        }
+    //    async componentDidMount() {
+    //      await this.requestLocationPermission()
+    //      Geolocation.getCurrentPosition(info => 
+    //         this.setState({
+    //             lat:info.coords.latitude
+    //         })
+    //         );
+    //      Geolocation.getCurrentPosition(info => 
+    //         // console.log(info.coords.longitude)
+    //         this.setState({
+    //             lng:info.coords.longitude
+    //         })
+    //      );
+    //     }
     //geo end
+
+    componentDidMount(){
+        if (Platform.OS === 'android') {
+            this.getPermissions();
+        } else {
+            this.findCoordinates();
+        }
+    }
 
     //validate
     validateData() {
@@ -128,6 +138,41 @@ export default class Register extends Component {
           isLoading: false,
           validation: true,
         };
+
+        // if (Platform.OS === 'android') {
+        //     this.getPermissions()
+        // } else {
+        //     this.findCoordinates()
+        // }
+      }
+
+      getPermissions = () => {
+        RNAndroidLocationEnabler.promptForEnableLocationIfNeeded({interval: 10000, fastInterval: 5000})
+        .then(data => {
+          if (data === "already-enabled") {
+            this.findCoordinates();
+          } else {
+            setTimeout(() => {
+              this.findCoordinates();
+            }, 1000)
+          }
+        })
+      };
+    
+      findCoordinates = () => {
+        Geolocation.getCurrentPosition(
+          info => {
+            console.log(info);
+            this.setState({
+                lat:info.coords.latitude
+            });
+            this.setState({
+                lng:info.coords.longitude
+            });
+          },
+          error => {
+            console.log(error)
+          });
       }
 
       Register(){
@@ -145,16 +190,22 @@ export default class Register extends Component {
             lng: this.state.lng,
         };
 
-        axios.post(`https://www.agrobizz.net/api/customer/create`, CustomerInfo)
-            .then(res => {
-                ToastAndroid.show(res.message, ToastAndroid.SHORT);
-                this.setState({isLoading:false});
-            });
+        NetInfo.fetch().then(state => {
+            if (state.isConnected === true) {
+                    axios.post(`https://www.agrobizz.net/api/customer/create`, CustomerInfo)
+                     .then(res => {
+                       ToastAndroid.show(res.message, ToastAndroid.SHORT);
+                       this.setState({isLoading:false});
+                });
+            } else {
+                Alert.alert('Connection Failed', 'Please check your Network Connection !');
+            }
+        });
       }
 
     render() {
         return (
-            <SafeAreaView>
+            <SafeAreaView style={styles.centerVerticle}>
                 {/* <View style={styles.container}> */}
                 <ScrollView>
                     {/* Customer name */}
@@ -258,13 +309,13 @@ export default class Register extends Component {
                     {/* Google address */}
                     {/* Gender */}
                     <View style={{borderWidth: 1,borderColor: '#999',borderRadius: 5,margin: 10,}}>
-                    <Text style={{position: 'absolute', fontSize: 10, marginLeft:20}}>Gender</Text>
+                    <Text style={{position: 'absolute', fontSize: 12, marginLeft:20,}}>Gender</Text>
                         <RadioButton
                          data={options} //required
                          onValueChange={this.onValueChange.bind(this)} //required
                          formStyle ={styles.buttonContainer}
                          circleContainerStyle={styles.circle}
-                         labelStyle={{marginRight:30}} 
+                         labelStyle={{marginRight:30}}
                         />
                         </View>
                     {/*Submit button */}
@@ -278,7 +329,7 @@ export default class Register extends Component {
                         </View>
                     </TouchableOpacity>
                     {/* ResetButton */}
-
+                    
                     {/* progress */}
                     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
                         {this.state.isLoading && <ActivityIndicator color='red' size="large"/>}
@@ -344,7 +395,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
       },
-    
+    centerVerticle: {
+        flex:1,
+        flexDirection:'row',
+        alignItems:'center',
+        justifyContent:'center',
+    },
 });
 
 // export async function requestLocationPermission() 

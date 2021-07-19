@@ -19,7 +19,7 @@ export default class componentName extends Component {
         this.CheckLoginInfo();
     }
 
-      async Login() {
+    async Login() {
         NetInfo.fetch().then(state => {
             if (state.isConnected === true) {
                 fetch(Strings.BaseUrl+'api/user/login?email=' + this.state.email + '&password=' + this.state.password, {
@@ -50,21 +50,38 @@ export default class componentName extends Component {
                                 this.saveUserLoginInfo(id, useremail, name, role);  //save user info
                                 this.props.navigation.navigate('S2');
                             } else {
-                                Alert.alert('Login Failed', responseJson.message);
+                                // Alert.alert('Login Failed', responseJson.message);
+                                this.AlertMessage('Login Failed', responseJson.message);
                             }
                         } else {
-                            Alert.alert('Login Failed', 'Username and Password is Incorrect !');
+                            // Alert.alert('Login Failed', 'Username and Password is Incorrect !');
+                            this.AlertMessage('Login Failed', 'Username and Password is Incorrect !');
                         }
                     })
-
                     .catch((error) => {
-                        Alert.alert('Login Failed', 'Username and Password is Incorrect !');
+                        // Alert.alert('Login Failed', 'Username and Password is Incorrect !');
+                        this.AlertMessage('Login Failed', 'Username and Password is Incorrect !');
                     });
             } else {
-                    Alert.alert('Connection Failed', 'Please check your Network Connection !');
+                    // Alert.alert('Connection Failed', 'Please check your Network Connection !');
+                    this.AlertMessage('Connection Failed', 'Please check your Network Connection !');
             }
-          });
+        });
     }
+
+    AlertMessage = (title,message) =>
+    Alert.alert(
+      title,
+      message,
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel"
+        },
+        { text: "OK", onPress: () => console.log("OK Pressed") }
+      ]
+    );
 
     async saveUserLoginInfo(id, mail, name, role){
         try {

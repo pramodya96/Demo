@@ -4,10 +4,11 @@
 import React, {Component} from 'react';
 import { TouchableOpacity } from 'react-native';
 import { Dimensions } from 'react-native';
-import {View, Text, StyleSheet, Image, StatusBar, Button, FlatList} from 'react-native';
+import {View, Text, StyleSheet, Image, StatusBar, Button, FlatList, Alert} from 'react-native';
 import { Card } from 'react-native-paper';
 import Header from './Header';
 import axios from 'axios';
+import NetInfo from "@react-native-community/netinfo";
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 let data = [];
@@ -28,47 +29,53 @@ export default class ScreenTwo extends Component {
   }
 
   getData(){
-    axios.post(`https://agrobizz.net/api/majorCrop/getAll`)
-    .then(res => {
-      this.setState({
-        dataSource: res.data.data
-       });
-      //  console.log(this.state.dataSource[0].Coconut.English);
+    NetInfo.fetch().then(state => {
+      if (state.isConnected === true) {
+        axios.post(`https://agrobizz.net/api/majorCrop/getAll`)
+        .then(res => {
+          this.setState({
+            dataSource: res.data.data
+          });
+          //  console.log(this.state.dataSource[0].Coconut.English);
 
 
-      // let data = [];
+          // let data = [];
 
-      for (var i = 0; i < this.state.dataSource.length; i++){
-        Object.keys(this.state.dataSource[i]).reduce((result, key) => {
-            // console.log(result.concat(this.state.dataSource[i][key].English));
-            // let word = result.concat(this.state.dataSource[i][key].English);
-            // let formatter = word.slice(1, word.length - 1);
+          for (var i = 0; i < this.state.dataSource.length; i++){
+            Object.keys(this.state.dataSource[i]).reduce((result, key) => {
+                // console.log(result.concat(this.state.dataSource[i][key].English));
+                // let word = result.concat(this.state.dataSource[i][key].English);
+                // let formatter = word.slice(1, word.length - 1);
 
-            // console.log(formatter);
-            // console.log(result);
-            let crop = this.state.dataSource[i][key].Image;
-            // let img = this.state.dataSource[i].English.Image;
+                // console.log(formatter);
+                // console.log(result);
+                let crop = this.state.dataSource[i][key].Image;
+                // let img = this.state.dataSource[i].English.Image;
 
-            console.log(crop);
-            
-              data.push(
-                   {
-                      id: i,
-                      name: result.concat(this.state.dataSource[i][key].English),
-                      crop: this.state.dataSource[i][key].Image
-                  }
-              );
-        // console.log(data[i].name);
+                console.log(crop);
 
-                },[]);
-        }
-        this.setState({
-          arrayData:data
-        })
-        // console.log(this.state.arrayData);
-   
+                  data.push(
+                      {
+                          id: i,
+                          name: result.concat(this.state.dataSource[i][key].English),
+                          crop: this.state.dataSource[i][key].Image
+                      }
+                  );
+            // console.log(data[i].name);
+
+                    },[]);
+            }
+            this.setState({
+              arrayData:data
+            })
+            // console.log(this.state.arrayData);
+      
+      });
+      }else {
+        Alert.alert('Connection Failed', 'Please check your Network Connection !');
+      }
     });
-  }
+}
 
 
   render() {
@@ -95,7 +102,7 @@ export default class ScreenTwo extends Component {
               source ={require('../src/images/menuicon2.png')}
               />
           </TouchableOpacity>
-        <Text style ={styles.title}>Header</Text>
+        <Text style ={styles.title}>Agrobizz</Text>
         <TouchableOpacity>
           <Image
             style={styles.headericon}
