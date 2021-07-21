@@ -309,7 +309,7 @@ export default class Register extends Component {
                     {/* Google address */}
                     {/* Gender */}
                     <View style={{borderWidth: 1,borderColor: '#999',borderRadius: 5,margin: 10,}}>
-                    <Text style={{position: 'absolute', fontSize: 12, marginLeft:20,}}>Gender</Text>
+                    {/* <Text style={{position: 'absolute', fontSize: 12, marginLeft:20,}}>Gender</Text> */}
                         <RadioButton
                          data={options} //required
                          onValueChange={this.onValueChange.bind(this)} //required
